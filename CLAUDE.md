@@ -18,7 +18,7 @@ python -m http.server 8000   # luego http://localhost:8000
 
 Tres archivos: `index.html` (DOM, dos `<canvas>` y overlay), `style.css` (tema oscuro) y `game.js` (toda la lógica).
 
-`game.js` es un script clásico (no módulo, `'use strict'`) cargado al final del `<body>`; obtiene los elementos del DOM por `id` al cargarse y guarda todo el estado en variables globales mutables (`board`, `current`, `next`, `score`, `lines`, `level`, `paused`, `gameOver`, `dropInterval`, `animId`…). `init()` reinicia ese estado y también es el handler del botón de reinicio.
+`game.js` es un script clásico (no módulo, `'use strict'`) cargado al final del `<body>`; obtiene los elementos del DOM por `id` al cargarse y guarda todo el estado en variables globales mutables (`board`, `current`, `next`, `score`, `lines`, `level`, `paused`, `gameOver`, `dropInterval`, `animId`…). `resetState()` reinicia ese estado sin arrancar el bucle; `init()` = `resetState()` + ocultar overlay + arrancar el bucle, y es el handler de `#restart-btn` y `#play-btn`. Al cargar se llama a `resetState()` + `showStartScreen()`: el juego no arranca hasta pulsar "Jugar" (`started` bloquea el teclado hasta entonces).
 
 Convenciones clave:
 
@@ -28,10 +28,13 @@ Convenciones clave:
 - **Colisión** (`collide`) permite `y < 0` (celdas por encima del tablero) y es la base de movimiento, rotación, ghost (`ghostY`) y detección de Game Over en `spawn()`.
 - **Bucle**: `requestAnimationFrame` con acumulador `dropAccum` contra `dropInterval`. Pausa y Game Over hacen `cancelAnimationFrame(animId)`. `lockPiece()` = `merge` → `clearLines` → `spawn`.
 - **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; nivel = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Records**: `localStorage.records` = `{ top: [{name, score, lines, level, date}] (máx `TOP_SIZE`=5, desc por score), bestCombo, maxLines }`; `loadRecords()` valida el JSON y trata lo corrupto como vacío. `localStorage.playerName` guarda el último nombre. `endGame()` actualiza `bestCombo`/`maxLines` siempre y, si la puntuación entra en el top, muestra `#name-form` (`pendingEntry`); `saveEntry()` la inserta y `renderRecords(rec, idx)` resalta la fila. La tabla se pinta con `textContent` (nunca `innerHTML`). En pausa no se muestra.
+- **Combo**: `clearLines()` devuelve las líneas limpiadas; `lockPiece()` suma `combo` si limpia y lo pone a 0 si no (la bomba ni suma ni rompe). `maxCombo` es el de la partida.
+- **Teclado**: el listener de `keydown` ignora eventos cuyo target sea `input`/`select`/`textarea`.
 - **Tema claro/oscuro**: los colores de `style.css` son variables CSS en `:root` (oscuro, por defecto) y `:root[data-theme="light"]`. `applyTheme(theme)` en `game.js` fija `data-theme`, cachea `--grid` y `--highlight` para el canvas, actualiza `#theme-toggle` y redibuja (`draw`/`drawNext`) aunque el juego esté en pausa. La preferencia se guarda en `localStorage` (`theme`); `init()` no la toca.
 
 ## Acoplamientos a tener en cuenta
 
 - Las dimensiones del `<canvas id="board">` en `index.html` (300×600) deben ser `COLS*BLOCK × ROWS*BLOCK`.
 - `#next-canvas` (120×120) asume una rejilla de 4×4 con celdas de 30 px (`NB` en `drawNext`).
-- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`) se referencian directamente desde `game.js`.
+- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`, `play-btn`, `name-form`, `player-name`, `records`, `records-body`, `records-stats`, `clear-records-btn`) se referencian directamente desde `game.js`.
