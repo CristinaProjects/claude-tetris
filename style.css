@@ -204,11 +204,18 @@ kbd {
   background: var(--accent-hover);
 }
 
-/* ---- Selector de tema ---- */
-#theme-toggle {
+/* ---- Selectores de skin y tema ---- */
+.top-controls {
   position: fixed;
   top: 16px;
   right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+#theme-toggle,
+#skin-select {
+  font-family: inherit;
   background: var(--board-bg);
   color: var(--text);
   border: 1px solid var(--border);
@@ -219,6 +226,7 @@ kbd {
   cursor: pointer;
 }
 
-#theme-toggle:hover {
+#theme-toggle:hover,
+#skin-select:hover {
   border-color: var(--accent);
 }
