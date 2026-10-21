@@ -27,9 +27,10 @@ Convenciones clave:
 - **Colisión** (`collide`) permite `y < 0` (celdas por encima del tablero) y es la base de movimiento, rotación, ghost (`ghostY`) y detección de Game Over en `spawn()`.
 - **Bucle**: `requestAnimationFrame` con acumulador `dropAccum` contra `dropInterval`. Pausa y Game Over hacen `cancelAnimationFrame(animId)`. `lockPiece()` = `merge` → `clearLines` → `spawn`.
 - **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; nivel = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Tema claro/oscuro**: los colores de `style.css` son variables CSS en `:root` (oscuro, por defecto) y `:root[data-theme="light"]`. `applyTheme(theme)` en `game.js` fija `data-theme`, cachea `--grid` y `--highlight` para el canvas, actualiza `#theme-toggle` y redibuja (`draw`/`drawNext`) aunque el juego esté en pausa. La preferencia se guarda en `localStorage` (`theme`); `init()` no la toca.
 
 ## Acoplamientos a tener en cuenta
 
 - Las dimensiones del `<canvas id="board">` en `index.html` (300×600) deben ser `COLS*BLOCK × ROWS*BLOCK`.
 - `#next-canvas` (120×120) asume una rejilla de 4×4 con celdas de 30 px (`NB` en `drawNext`).
-- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`) se referencian directamente desde `game.js`.
+- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`) se referencian directamente desde `game.js`.
