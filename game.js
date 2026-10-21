@@ -48,10 +48,17 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
+const pauseMenu = document.getElementById('pause-menu');
+const resumeBtn = document.getElementById('resume-btn');
+const pauseRestartBtn = document.getElementById('pause-restart-btn');
+const controlsBtn = document.getElementById('controls-btn');
+const pauseControls = document.getElementById('pause-controls');
+const startLevelSelect = document.getElementById('start-level');
 
 let gridColor, highlightColor;
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 let nextBombAt, bombPending, explosion;
+let startLevel; // nivel inicial de la partida en curso
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -120,7 +127,7 @@ function clearLines() {
   if (cleared) {
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
-    level = Math.floor(lines / 10) + 1;
+    level = Math.max(startLevel, Math.floor(lines / 10) + 1);
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
     while (lines >= nextBombAt) {
       bombPending = true;
@@ -307,18 +314,39 @@ function endGame() {
   overlay.classList.remove('hidden');
 }
 
+function setControlsOpen(open) {
+  pauseControls.classList.toggle('hidden', !open);
+  controlsBtn.setAttribute('aria-expanded', String(open));
+  controlsBtn.textContent = open ? 'Ocultar controles' : 'Ver controles';
+}
+
+function closePauseMenu() {
+  pauseMenu.classList.add('hidden');
+  setControlsOpen(false);
+  // evita que Space/Enter vuelvan a activar un botón del menú ya oculto
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+}
+
+function pause() {
+  if (paused || gameOver) return;
+  paused = true;
+  cancelAnimationFrame(animId);
+  startLevelSelect.value = String(savedStartLevel());
+  pauseMenu.classList.remove('hidden');
+  resumeBtn.focus();
+}
+
+function resume() {
+  if (!paused || gameOver) return;
+  paused = false;
+  closePauseMenu();
+  lastTime = performance.now();
+  dropAccum = 0;
+  animId = requestAnimationFrame(loop);
+}
+
 function togglePause() {
-  if (gameOver) return;
-  paused = !paused;
-  if (!paused) {
-    lastTime = performance.now();
-    loop(lastTime);
-  } else {
-    cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
-    overlay.classList.remove('hidden');
-  }
+  if (paused) resume(); else pause();
 }
 
 function loop(ts) {
@@ -342,10 +370,11 @@ function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  startLevel = savedStartLevel();
+  level = startLevel;
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   dropAccum = 0;
   nextBombAt = BOMB_EVERY;
   bombPending = false;
@@ -355,12 +384,18 @@ function init() {
   spawn();
   updateHUD();
   overlay.classList.add('hidden');
+  closePauseMenu();
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape') {
+    if (gameOver) return;
+    e.preventDefault();
+    togglePause();
+    return;
+  }
   if (paused || gameOver) return;
   switch (e.code) {
     case 'ArrowLeft':
@@ -385,6 +420,23 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+resumeBtn.addEventListener('click', resume);
+pauseRestartBtn.addEventListener('click', init);
+controlsBtn.addEventListener('click', () => {
+  setControlsOpen(pauseControls.classList.contains('hidden'));
+});
+
+function savedStartLevel() {
+  try {
+    const n = parseInt(localStorage.getItem('startLevel'), 10);
+    return n >= 1 && n <= 10 ? n : 1;
+  } catch { return 1; }
+}
+
+startLevelSelect.addEventListener('change', () => {
+  try { localStorage.setItem('startLevel', startLevelSelect.value); } catch {}
+});
+startLevelSelect.value = String(savedStartLevel());
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
