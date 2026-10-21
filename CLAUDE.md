@@ -16,7 +16,7 @@ python -m http.server 8000   # luego http://localhost:8000
 
 ## Arquitectura
 
-Tres archivos: `index.html` (DOM, dos `<canvas>` y overlay), `style.css` (tema oscuro) y `game.js` (toda la lógica).
+Tres archivos: `index.html` (DOM, dos `<canvas>`, overlay de Game Over y menú de pausa), `style.css` (tema oscuro) y `game.js` (toda la lógica).
 
 `game.js` es un script clásico (no módulo, `'use strict'`) cargado al final del `<body>`; obtiene los elementos del DOM por `id` al cargarse y guarda todo el estado en variables globales mutables (`board`, `current`, `next`, `score`, `lines`, `level`, `paused`, `gameOver`, `dropInterval`, `animId`…). `init()` reinicia ese estado y también es el handler del botón de reinicio.
 
@@ -27,7 +27,8 @@ Convenciones clave:
 - **Rotación** = `rotateCW` (transposición + inversión) + wall kicks simples en `tryRotate` (desplazamientos `0, -1, 1, -2, 2`); no es SRS.
 - **Colisión** (`collide`) permite `y < 0` (celdas por encima del tablero) y es la base de movimiento, rotación, ghost (`ghostY`) y detección de Game Over en `spawn()`.
 - **Bucle**: `requestAnimationFrame` con acumulador `dropAccum` contra `dropInterval`. Pausa y Game Over hacen `cancelAnimationFrame(animId)`. `lockPiece()` = `merge` → `clearLines` → `spawn`.
-- **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; nivel = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; nivel = `max(startLevel, floor(lines/10)+1)`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Menú de pausa** (`#pause-menu`, distinto de `#overlay` de Game Over): `P`/`Escape` llaman a `togglePause()` → `pause()`/`resume()` (no se abre en Game Over). Con `paused` el keydown ignora todo salvo `P`/`Escape`; `resume()` cierra el menú (`closePauseMenu()` hace `blur()` del foco para que Space/Enter no reactiven botones), resetea `lastTime`/`dropAccum` y relanza el bucle. Opciones: Reanudar, Reiniciar (`init()`, que también cierra el menú), Ver controles (`setControlsOpen`) y Nivel inicial 1–10 (`#start-level`, guardado en `localStorage('startLevel')`, leído con `savedStartLevel()`). `init()` copia ese valor a `startLevel`, así que cambiarlo a mitad de partida solo afecta a la siguiente.
 - **Tema claro/oscuro**: los colores de `style.css` son variables CSS en `:root` (oscuro, por defecto) y `:root[data-theme="light"]`. `applyTheme(theme)` en `game.js` fija `data-theme`, cachea `--grid` y `--highlight` para el canvas, actualiza `#theme-toggle` y redibuja (`draw`/`drawNext`) aunque el juego esté en pausa. La preferencia se guarda en `localStorage` (`theme`); `init()` no la toca.
 - **Skins** (`SKINS` = `retro`, `neon`, `pastel`, `pixel`): cada una tiene `name` (texto del `<select id="skin-select">`), `colors` (paralelo a `COLORS`), `drawBlock(context, px, py, size, color, alpha)` y opcionalmente `boardBg` (fondo de ambos canvas; sin él se usa `--board-bg` del tema) y `grid` (color de rejilla; sin él, `--grid`). `drawBlock()` fija `globalAlpha`, delega en `skin.drawBlock` y lo restaura; la bomba sigue en `drawBomb` (con `skin.colors[BOMB]`) y la explosión no depende del skin. Las funciones de skin que usen `shadowBlur` deben dejarlo a 0. `applySkin(name)` valida el nombre (inválido → `retro`), fija el fondo y llama a `applyTheme()` para recachear y redibujar. Se guarda en `localStorage` (`skin`). El listener de `keydown` ignora eventos cuyo target es un `select`/`input`.
 
@@ -35,4 +36,4 @@ Convenciones clave:
 
 - Las dimensiones del `<canvas id="board">` en `index.html` (300×600) deben ser `COLS*BLOCK × ROWS*BLOCK`.
 - `#next-canvas` (120×120) asume una rejilla de 4×4 con celdas de 30 px (`NB` en `drawNext`).
-- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`, `skin-select`) se referencian directamente desde `game.js`.
+- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`, `skin-select`, `pause-menu`, `resume-btn`, `pause-restart-btn`, `controls-btn`, `pause-controls`, `start-level`) se referencian directamente desde `game.js`.
