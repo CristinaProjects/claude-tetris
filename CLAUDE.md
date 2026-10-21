@@ -23,6 +23,7 @@ Tres archivos: `index.html` (DOM, dos `<canvas>` y overlay), `style.css` (tema o
 Convenciones clave:
 
 - **El índice de tipo de pieza es también el índice de color.** `PIECES[i]` es una matriz cuadrada cuyas celdas valen `i`, y `board` almacena ese mismo valor (0 = vacío) que `drawBlock` resuelve vía `COLORS[i]`. Añadir/cambiar piezas exige mantener `PIECES`, `COLORS` y `randomPiece()` sincronizados: las 7 clásicas (1–7) salen con `* 7`, y la tuerca (8, anillo 3×3 con hueco central) sale aparte con probabilidad `NUT_CHANCE` (0.05).
+- **Bomba** (`BOMB` = 9, forma 1×1): no es aleatoria. Cada `BOMB_EVERY` líneas `clearLines()` activa `bombPending` y `spawn()` la pone como `next` (vía `makePiece`). Al bloquearse, `lockPiece()` llama a `explode()` en vez de `merge()`: vacía el 3×3 centrado (+10×nivel por bloque, sin gravedad) y lanza el destello `explosion` que pinta `drawExplosion()`. `drawBlock` delega en `drawBomb` para el tipo 9.
 - **Rotación** = `rotateCW` (transposición + inversión) + wall kicks simples en `tryRotate` (desplazamientos `0, -1, 1, -2, 2`); no es SRS.
 - **Colisión** (`collide`) permite `y < 0` (celdas por encima del tablero) y es la base de movimiento, rotación, ghost (`ghostY`) y detección de Game Over en `spawn()`.
 - **Bucle**: `requestAnimationFrame` con acumulador `dropAccum` contra `dropInterval`. Pausa y Game Over hacen `cancelAnimationFrame(animId)`. `lockPiece()` = `merge` → `clearLines` → `spawn`.
