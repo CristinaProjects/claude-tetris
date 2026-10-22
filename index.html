@@ -45,12 +45,26 @@
       </aside>
     </div>
 
-    <div id="overlay" class="overlay hidden">
+    <div id="overlay" class="overlay">
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <form id="name-entry" class="hidden">
+          <span class="new-record">¡Entras en el top 5!</span>
+          <input id="player-name" type="text" maxlength="12" placeholder="Tu nombre" autocomplete="off" />
+          <button id="save-btn" type="submit">Guardar</button>
+        </form>
+        <div id="records" class="records">
+          <span class="label">RÉCORDS</span>
+          <ol id="records-list"></ol>
+          <p class="records-extra">
+            <span id="best-combo"></span>
+            <span id="max-lines"></span>
+          </p>
+          <button id="reset-records-btn" type="button">Borrar récords</button>
+        </div>
         <button id="resume-btn" class="menu-btn pause-only" type="button">Reanudar</button>
-        <button id="restart-btn" type="button">Reiniciar</button>
+        <button id="restart-btn" type="button">Jugar</button>
         <button id="controls-btn" class="menu-btn pause-only" type="button" aria-expanded="false" aria-controls="pause-controls">Ver controles</button>
         <ul id="pause-controls" class="menu-controls pause-only hidden">
           <li><kbd>←</kbd><kbd>→</kbd> mover</li>

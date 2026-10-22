@@ -277,6 +277,132 @@ kbd {
   font: inherit;
 }
 
+/* ---- Récords ---- */
+.hidden {
+  display: none !important;
+}
+
+#name-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-record {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+#player-name {
+  width: 160px;
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 14px;
+  text-align: center;
+  user-select: text;
+}
+
+#player-name:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#save-btn,
+#reset-records-btn {
+  background: none;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#reset-records-btn {
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+#reset-records-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.records {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 220px;
+}
+
+#records-list {
+  list-style: none;
+  width: 100%;
+  counter-reset: rank;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+}
+
+#records-list li {
+  display: flex;
+  gap: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  counter-increment: rank;
+}
+
+#records-list li::before {
+  content: counter(rank) ".";
+  color: var(--label);
+}
+
+#records-list li .name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#records-list li.empty {
+  justify-content: center;
+  color: var(--muted);
+}
+
+#records-list li.empty::before {
+  content: none;
+}
+
+.records-extra {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+#records-list li.highlight,
+.records-extra .highlight {
+  background: var(--accent);
+  color: var(--btn-text);
+  font-weight: 700;
+}
+
+#records-list li.highlight::before {
+  color: inherit;
+}
+
+.records-extra .highlight {
+  padding: 0 4px;
+  border-radius: 3px;
+}
+
 /* ---- Selector de tema ---- */
 #theme-toggle {
   position: fixed;
