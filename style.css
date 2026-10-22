@@ -204,6 +204,79 @@ kbd {
   background: var(--accent-hover);
 }
 
+/* ---- Menú de pausa ---- */
+.overlay:not(.is-paused) .pause-only,
+.menu-controls.hidden {
+  display: none;
+}
+
+#resume-btn,
+.menu-btn,
+.overlay.is-paused #restart-btn {
+  width: 190px;
+  margin-top: 0;
+}
+
+.menu-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.menu-btn:hover,
+.menu-btn:focus-visible {
+  border-color: var(--accent);
+}
+
+#resume-btn {
+  margin-top: 8px;
+  background: var(--accent);
+  color: var(--btn-text);
+  border: none;
+}
+
+#resume-btn:hover {
+  background: var(--accent-hover);
+}
+
+.menu-controls {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.menu-controls li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menu-level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+#start-level {
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  font: inherit;
+}
+
 /* ---- Selector de tema ---- */
 #theme-toggle {
   position: fixed;
