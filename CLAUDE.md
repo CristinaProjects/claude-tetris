@@ -27,11 +27,12 @@ Convenciones clave:
 - **Rotación** = `rotateCW` (transposición + inversión) + wall kicks simples en `tryRotate` (desplazamientos `0, -1, 1, -2, 2`); no es SRS.
 - **Colisión** (`collide`) permite `y < 0` (celdas por encima del tablero) y es la base de movimiento, rotación, ghost (`ghostY`) y detección de Game Over en `spawn()`.
 - **Bucle**: `requestAnimationFrame` con acumulador `dropAccum` contra `dropInterval`. Pausa y Game Over hacen `cancelAnimationFrame(animId)`. `lockPiece()` = `merge` → `clearLines` → `spawn`.
-- **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; nivel = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Puntuación/nivel**: `LINE_SCORES[n] * level`; hard drop +2/celda, soft drop +1/fila; `updateLevel()` calcula nivel = `max(startLevel, floor(lines/10)+1)` y `dropInterval = max(100, 1000 - (level-1)*90)`. `startLevel` (1–`MAX_START_LEVEL`) se elige en `#start-level`, se guarda en `localStorage` (`startLevel`) y solo se aplica en el siguiente `init()`.
+- **Menú (pausa / Game Over)**: `P` o `Escape` llaman a `togglePause()`. `showMenu(title, scoreText)` abre el overlay (oculta `#resume-btn` si `gameOver`) y `hideMenu()` lo cierra, quita el foco y activa `ignoreRepeat`, que descarta auto-repeticiones de teclas mantenidas durante el menú. Con el menú abierto el `keydown` del juego no hace nada.
 - **Tema claro/oscuro**: los colores de `style.css` son variables CSS en `:root` (oscuro, por defecto) y `:root[data-theme="light"]`. `applyTheme(theme)` en `game.js` fija `data-theme`, cachea `--grid` y `--highlight` para el canvas, actualiza `#theme-toggle` y redibuja (`draw`/`drawNext`) aunque el juego esté en pausa. La preferencia se guarda en `localStorage` (`theme`); `init()` no la toca.
 
 ## Acoplamientos a tener en cuenta
 
 - Las dimensiones del `<canvas id="board">` en `index.html` (300×600) deben ser `COLS*BLOCK × ROWS*BLOCK`.
 - `#next-canvas` (120×120) asume una rejilla de 4×4 con celdas de 30 px (`NB` en `drawNext`).
-- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`) se referencian directamente desde `game.js`.
+- Los `id` del HTML (`score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `next-canvas`, `theme-toggle`, `resume-btn`, `controls-btn`, `menu-controls`, `start-level`) se referencian directamente desde `game.js`.
