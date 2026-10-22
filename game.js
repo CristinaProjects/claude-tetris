@@ -35,6 +35,7 @@ const NUT_CHANCE = 0.05;
 const BOMB = 9;
 const BOMB_EVERY = 5;
 const EXPLOSION_MS = 300;
+const MAX_START_LEVEL = 10;
 
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -48,10 +49,15 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
+const resumeBtn = document.getElementById('resume-btn');
+const controlsBtn = document.getElementById('controls-btn');
+const pauseControls = document.getElementById('pause-controls');
+const startLevelSel = document.getElementById('start-level');
 
 let gridColor, highlightColor;
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 let nextBombAt, bombPending, explosion;
+let startLevel = 1, resumeGuard = false;
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -120,8 +126,7 @@ function clearLines() {
   if (cleared) {
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
-    level = Math.floor(lines / 10) + 1;
-    dropInterval = Math.max(100, 1000 - (level - 1) * 90);
+    setLevel(startLevel + Math.floor(lines / 10));
     while (lines >= nextBombAt) {
       bombPending = true;
       nextBombAt += BOMB_EVERY;
@@ -184,6 +189,11 @@ function spawn() {
     endGame();
   }
   drawNext();
+}
+
+function setLevel(n) {
+  level = n;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
 }
 
 function updateHUD() {
@@ -311,14 +321,29 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    closePauseMenu();
+    // ignora el auto-repeat de teclas que sigan pulsadas al volver
+    resumeGuard = true;
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
     overlayTitle.textContent = 'PAUSA';
     overlayScore.textContent = '';
+    overlay.classList.add('is-paused');
     overlay.classList.remove('hidden');
+    resumeBtn.focus();
   }
+}
+
+function closePauseMenu() {
+  overlay.classList.add('hidden');
+  overlay.classList.remove('is-paused');
+  pauseControls.classList.add('hidden');
+  controlsBtn.setAttribute('aria-expanded', 'false');
+  controlsBtn.textContent = 'Ver controles';
+  // evita que Space/Enter reactive el botón enfocado durante la partida
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 }
 
 function loop(ts) {
@@ -342,10 +367,10 @@ function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  setLevel(startLevel);
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  resumeGuard = false;
   dropAccum = 0;
   nextBombAt = BOMB_EVERY;
   bombPending = false;
@@ -354,14 +379,18 @@ function init() {
   next = randomPiece();
   spawn();
   updateHUD();
-  overlay.classList.add('hidden');
+  closePauseMenu();
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
   if (paused || gameOver) return;
+  if (resumeGuard) {
+    if (e.repeat) { e.preventDefault(); return; }
+    resumeGuard = false;
+  }
   switch (e.code) {
     case 'ArrowLeft':
       if (!collide(current.shape, current.x - 1, current.y)) current.x--;
@@ -385,6 +414,16 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+resumeBtn.addEventListener('click', togglePause);
+
+controlsBtn.addEventListener('click', () => {
+  const show = pauseControls.classList.toggle('hidden') === false;
+  controlsBtn.setAttribute('aria-expanded', String(show));
+  controlsBtn.textContent = show ? 'Ocultar controles' : 'Ver controles';
+});
+
+for (let n = 1; n <= MAX_START_LEVEL; n++) startLevelSel.add(new Option(n, n));
+startLevelSel.addEventListener('change', () => { startLevel = Number(startLevelSel.value); });
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
