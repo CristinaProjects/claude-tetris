@@ -204,6 +204,107 @@ kbd {
   background: var(--accent-hover);
 }
 
+/* ---- Récords ---- */
+.hidden {
+  display: none !important;
+}
+
+.name-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.name-row {
+  display: flex;
+  gap: 6px;
+}
+
+.name-form input {
+  width: 140px;
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.name-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.name-form button,
+#reset-records {
+  background: var(--kbd-bg);
+  color: var(--text);
+  border: 1px solid var(--kbd-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.name-form button:hover,
+#reset-records:hover {
+  border-color: var(--accent);
+}
+
+.records {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.records table {
+  border-collapse: collapse;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+}
+
+.records th {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--label);
+  font-weight: 600;
+  padding: 0 8px 4px;
+}
+
+.records td {
+  padding: 3px 8px;
+  text-align: right;
+}
+
+.records td:nth-child(2) {
+  text-align: left;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.records tr.current td {
+  background: var(--accent-glow);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.records td.empty {
+  text-align: center;
+  color: var(--muted);
+}
+
+#records-extra {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* ---- Selector de tema ---- */
 #theme-toggle {
   position: fixed;
