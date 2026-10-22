@@ -403,11 +403,52 @@ kbd {
   border-radius: 3px;
 }
 
-/* ---- Selector de tema ---- */
-#theme-toggle {
+/* ---- Barra superior: skin + tema ---- */
+.top-bar {
   position: fixed;
   top: 16px;
   right: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.skin-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--label);
+  text-transform: uppercase;
+}
+
+#skin-select {
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+}
+
+#skin-select:hover {
+  border-color: var(--accent);
+}
+
+/* Neon: tablero negro en ambos temas */
+:root[data-skin="neon"] #board,
+:root[data-skin="neon"] #next-canvas {
+  background: #000;
+}
+
+/* ---- Selector de tema ---- */
+#theme-toggle {
   background: var(--board-bg);
   color: var(--text);
   border: 1px solid var(--border);
