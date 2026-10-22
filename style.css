@@ -204,11 +204,24 @@ kbd {
   background: var(--accent-hover);
 }
 
-/* ---- Selector de tema ---- */
-#theme-toggle {
+/* ---- Selector de skin y tema ---- */
+.toolbar {
   position: fixed;
   top: 16px;
   right: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.skin-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#skin-select,
+#theme-toggle {
   background: var(--board-bg);
   color: var(--text);
   border: 1px solid var(--border);
@@ -219,6 +232,7 @@ kbd {
   cursor: pointer;
 }
 
+#skin-select:hover,
 #theme-toggle:hover {
   border-color: var(--accent);
 }
